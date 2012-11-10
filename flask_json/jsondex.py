@@ -1,6 +1,7 @@
 #!/usr/bin/env  python2.7
 # -*- coding:utf-8 -*-
 from flask import Flask, Response, json
+from datetime import datetime
 app = Flask(__name__)
 app.config.from_pyfile('conf/app.cfg', silent=True)
 
@@ -18,7 +19,7 @@ def hello_world(name):
     response = Response(json.dumps(result))
     response.headers['Content-Type'] = "application/json"
     response.headers['Last-Modified'] = \
-        "Last-Modified: Wed, 21 Jun 2012 07:00:25 GMT"
+        datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
     app.logger.debug(json.dumps(result))
     app.logger.debug(app.config["DATABASE"])
     return response
