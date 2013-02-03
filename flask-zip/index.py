@@ -12,6 +12,10 @@ app = Flask(__name__)
 def open_db():
     g.db = dbm.open('zip_local', 'c')
 
+@app.before_first_request
+def init_db():
+    print "INIT DB! Yeahhh!"
+
 
 @app.after_request
 def add_header(response):
