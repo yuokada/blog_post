@@ -10,7 +10,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'asd'
-app.config["DEBUG_TB_TEMPLATE_EDITOR_ENABLED"] = True
 app.config["DEBUG_TB_PROFILER_ENABLED"] = True
 toolbar = DebugToolbarExtension(app)
 @app.before_request
