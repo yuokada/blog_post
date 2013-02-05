@@ -5,9 +5,14 @@ import dbm
 import json
 from flask import Flask, g, Response, request, abort
 from flask.views import MethodView
+from flask_debugtoolbar import DebugToolbarExtension
 
 app = Flask(__name__)
-
+app.debug = True
+app.config['SECRET_KEY'] = 'asd'
+app.config["DEBUG_TB_TEMPLATE_EDITOR_ENABLED"] = True
+app.config["DEBUG_TB_PROFILER_ENABLED"] = True
+toolbar = DebugToolbarExtension(app)
 @app.before_request
 def open_db():
     g.db = dbm.open('zip_local', 'c')
@@ -15,12 +20,18 @@ def open_db():
 @app.before_first_request
 def init_db():
     print "INIT DB! Yeahhh!"
+    pass
 
 
 @app.after_request
 def add_header(response):
-    response.headers['Last-Modified'] = \
-        "Wed, 21 Jun 2012 07:00:25 GMT"
+    if response.content_type == "application/json":
+        if request.headers.get('User-Agent').find("Mozilla") == 0:
+            body = "<body>%s</body>" % response.data
+            return Response(body)
+    else:
+        response.headers['Last-Modified'] = \
+            "Wed, 21 Jun 2012 07:00:25 GMT"
     return response
 
 
@@ -35,7 +46,6 @@ class ZipCodeAPI(MethodView):
 
     def __init__(self):
         super(ZipCodeAPI, self).__init__()
-        print request.json
 
     def get(self, zipcode):
         data = g.db[str(zipcode)]
