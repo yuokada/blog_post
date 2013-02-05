@@ -54,11 +54,15 @@ def add_session():
 
 
 @app.after_request
-def add_header(response):
+def add_dtb(response):
     if response.headers["Content-Type"] == "application/json":
         if request.headers.get('User-Agent').find("Mozilla") == 0:
             body = "<body>%s</body>" % response.data
             return Response(body)
+    return response
+
+@app.after_request
+def add_header(response):
     if response.status_code in [200, 201]:
         response.headers['Last-Modified'] = \
             "Wed, 21 Jun 2012 07:00:25 GMT"
