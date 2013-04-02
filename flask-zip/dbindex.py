@@ -7,8 +7,16 @@ from flask.views import MethodView
 
 from sqlalchemy import Column, Integer, Unicode, create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.pool import SingletonThreadPool
 from sqlalchemy.ext.declarative import declarative_base
 from flask_debugtoolbar import DebugToolbarExtension
+
+
+import logging
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.orm').setLevel(logging.DEBUG)
+
 
 Base = declarative_base()
 
@@ -36,6 +44,8 @@ app.config['SECRET_KEY'] = 'asd'
 app.config["DEBUG_TB_PROFILER_ENABLED"] = True
 toolbar = DebugToolbarExtension(app)
 
+db_session = None
+
 @app.before_first_request
 def init_db():
     print "INIT DB! Yeahhh!"
@@ -47,14 +57,22 @@ def init_db():
 
 @app.before_request
 def add_session():
-    engine = create_engine("sqlite:///local_zip.db", echo=True)
+    global db_session
+    engine = create_engine("sqlite:///local_zip.db", echo=True,)
+    #engine = create_engine(echo=True,
+    # pool=SingletonThreadPool(lambda: sqlite.connect(filename='local_zip.db')),
+    # pool_size=20)
     Base.metadata.reflect(engine)
+    print type(db_session)
     db_session = scoped_session(sessionmaker(bind=engine))
-    g.session = db_session
+    #g.session = db_session
 
 
 @app.after_request
 def add_dtb(response):
+    # デコレータの都合上あとで設定したほうから先にコールされるので
+    # この関数をなるべく内側に持ってくるように設計する
+    print "Called2"
     if response.headers["Content-Type"] == "application/json":
         if request.headers.get('User-Agent').find("Mozilla") == 0:
             body = "<body>%s</body>" % response.data
@@ -63,6 +81,7 @@ def add_dtb(response):
 
 @app.after_request
 def add_header(response):
+    print "Called1"
     if response.status_code in [200, 201]:
         response.headers['Last-Modified'] = \
             "Wed, 21 Jun 2012 07:00:25 GMT"
@@ -74,7 +93,10 @@ def add_header(response):
 def remove_session(e):
     """ Remove session
     """
-    g.session.remove()
+    global db_session
+    db_session.remove()
+    db_session = None
+    #g.session.remove()
 
 class ZipCodeAPI(MethodView):
 
@@ -83,7 +105,7 @@ class ZipCodeAPI(MethodView):
 
     def get(self, zipcode):
         zip_ins = ZipCode(zipcode)
-        q = g.session.query(ZipCode).filter_by(zipcode=zipcode)
+        q = db_session.query(ZipCode).filter_by(zipcode=zipcode)
         q_results = q.first()
         if not q_results:
             # レコードが見つからなかったので404で処理
@@ -108,11 +130,11 @@ class ZipCodeAPI(MethodView):
                 else:
                     abort(400)
 
-            q = g.session.query(ZipCode).filter_by(zipcode=zipcode)
+            q = db_session.query(ZipCode).filter_by(zipcode=zipcode)
             res = q.first()
-            #res = g.session.add(record)
-            res = g.session.merge(record)
-            g.session.commit()
+            #res = db_session.add(record)
+            res = db_session.merge(record)
+            db_session.commit()
             res = Response("OK")
             res.headers["Content-Type"] = "application/json"
             return res
@@ -120,16 +142,16 @@ class ZipCodeAPI(MethodView):
             abort(400)
 
     def delete(self, zipcode):
-        q_res = g.session.query(ZipCode).filter(ZipCode.zipcode==zipcode).delete()
+        q_res = db_session.query(ZipCode).filter(ZipCode.zipcode==zipcode).delete()
         if q_res == 1:
             print "DELETE => Commit"
-            print g.session.commit()
+            print db_session.commit()
             res = Response("OK")
             res.headers["Content-Type"] = "application/json"
             res.status_code = 200
         else:
             print "Not Commit"
-            print g.session.rollback()
+            print db_session.rollback()
             res =  Response("Not Found")
             res.status_code = 404
         return res
