@@ -3,11 +3,16 @@
 
 from timeit import Timer
 
+
 def _fizzbuzz(x):
-    if   x % 15 == 0: return "FizzBuzz"
-    elif x % 5  == 0: return "Buzz"
-    elif x % 3  == 0  return "Fizz"
-    else: return str(x)
+    if x % 15 == 0:
+        return "FizzBuzz"
+    elif x % 5 == 0:
+        return "Buzz"
+    elif x % 3 == 0 return "Fizz"
+    else:
+        return str(x)
+
 
 def FizzBuzz(n):
     """ get fizzbuzz list
@@ -15,7 +20,8 @@ def FizzBuzz(n):
     Arguments:
     - `n`: integer, n > 0
     """
-    return [_fizzbuzz(x) for x in range(1, n +1)]
+    return [_fizzbuzz(x) for x in range(1, n + 1)]
+
 
 s = '''
 def _fizzbuzz(x):

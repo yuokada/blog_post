@@ -3,6 +3,7 @@
 
 from timeit import Timer
 
+
 def collatz(n):
     ls = [n]
     while n != 1:
@@ -12,6 +13,7 @@ def collatz(n):
             n = n * 3 + 1
         ls.append(n)
     return ls
+
 
 s = '''
 def collatz(n):

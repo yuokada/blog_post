@@ -20,13 +20,14 @@ logging.getLogger('sqlalchemy.orm').setLevel(logging.DEBUG)
 
 Base = declarative_base()
 
+
 class ZipCode(Base):
     __tablename__ = 'zipcodes'
 
     zipcode = Column(Integer, primary_key=True)
     prefecture = Column(Unicode)
-    city       = Column(Unicode)
-    town       = Column(Unicode)
+    city = Column(Unicode)
+    town = Column(Unicode)
 
     def __init__(self, zipcode, prefecture=None, city=None, town=None):
 
@@ -36,7 +37,8 @@ class ZipCode(Base):
         self.town = town
 
     def __repr__(self):
-       return "<ZipCode(%d)>" % (self.zipcode)
+        return "<ZipCode(%d)>" % (self.zipcode)
+
 
 app = Flask(__name__)
 app.debug = True
@@ -46,20 +48,21 @@ toolbar = DebugToolbarExtension(app)
 
 db_session = None
 
+
 @app.before_first_request
 def init_db():
     print "INIT DB! Yeahhh!"
     #engine = create_engine("sqlite:///local_zip.db")
     #metadata = MetaData(bind=engine)
     #Base.metadata = metadata
-    #ZipCode.metadata.create_all()
+    # ZipCode.metadata.create_all()
 
 
 @app.before_request
 def add_session():
     global db_session
     engine = create_engine("sqlite:///local_zip.db", echo=True,)
-    #engine = create_engine(echo=True,
+    # engine = create_engine(echo=True,
     # pool=SingletonThreadPool(lambda: sqlite.connect(filename='local_zip.db')),
     # pool_size=20)
     Base.metadata.reflect(engine)
@@ -79,6 +82,7 @@ def add_dtb(response):
             return Response(body)
     return response
 
+
 @app.after_request
 def add_header(response):
     print "Called1"
@@ -96,7 +100,8 @@ def remove_session(e):
     global db_session
     db_session.remove()
     db_session = None
-    #g.session.remove()
+    # g.session.remove()
+
 
 class ZipCodeAPI(MethodView):
 
@@ -142,7 +147,7 @@ class ZipCodeAPI(MethodView):
             abort(400)
 
     def delete(self, zipcode):
-        q_res = db_session.query(ZipCode).filter(ZipCode.zipcode==zipcode).delete()
+        q_res = db_session.query(ZipCode).filter(ZipCode.zipcode == zipcode).delete()
         if q_res == 1:
             print "DELETE => Commit"
             print db_session.commit()
@@ -152,7 +157,7 @@ class ZipCodeAPI(MethodView):
         else:
             print "Not Commit"
             print db_session.rollback()
-            res =  Response("Not Found")
+            res = Response("Not Found")
             res.status_code = 404
         return res
 

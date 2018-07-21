@@ -29,6 +29,7 @@ def mapping_sid(id):
     dist = id % 4
     return service[dist]
 
+
 def create_summery():
     summery = {}
     for i in range(4):
@@ -38,23 +39,24 @@ def create_summery():
     print summery
     return summery
 
+
 create_summery()
 exit()
 
 host = "www10284ue.sakura.ne.jp"
 r = redis.Redis(host=host)
 
-### delete all data
+# delete all data
 r.flushall()
 
-### make initial data
+# make initial data
 datas = []
 for i in range(1, 100 + 1):
     record = create_data()
     sid = mapping_sid(i)
     datas.append([sid, record])
 
-### set that
+# set that
 for sid, record in datas:
     r.hmset(sid, record)
     print sid,

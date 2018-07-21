@@ -12,9 +12,12 @@ app.debug = True
 app.config['SECRET_KEY'] = 'asd'
 app.config["DEBUG_TB_PROFILER_ENABLED"] = True
 toolbar = DebugToolbarExtension(app)
+
+
 @app.before_request
 def open_db():
     g.db = dbm.open('zip_local', 'c')
+
 
 @app.before_first_request
 def init_db():

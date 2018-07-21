@@ -9,7 +9,7 @@ r = redis.Redis(host=host)
 r.set('foo', '100')
 print r.get('foo')
 
-#r.delete('pre_recent')
+# r.delete('pre_recent')
 
 
 for i in range(20):
@@ -18,7 +18,7 @@ for i in range(20):
 ###
 print r.mget(['recent'])
 current = r.lrange('recent', 0, -1)
-current.extend(r.lrange('pre_recent',0,-1) )
+current.extend(r.lrange('pre_recent', 0, -1))
 print current
 
 r.rename('recent', 'pre_recent')

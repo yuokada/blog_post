@@ -5,6 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config.from_pyfile('conf/app.cfg', silent=True)
 
+
 @app.route('/name/<name>.json')
 def hello_world(name):
     greet = u"こんにちわ %s from flask!" % name
@@ -23,6 +24,7 @@ def hello_world(name):
     app.logger.debug(json.dumps(result))
     app.logger.debug(app.config["DATABASE"])
     return response
+
 
 if __name__ == '__main__':
     app.run()

@@ -5,16 +5,18 @@ import csv
 import dbm
 import gdbm
 
+
 def parse_line(row):
     """docstring for parse_line"""
     fields = [
-        #row[1],
+        # row[1],
         row[2],
         row[6],
         row[7],
         row[8],
     ]
     return ','.join(fields)
+
 
 #f = open('./27OSAKA.CSV', 'r')
 f = open('./KEN_ALL.CSV', 'r')

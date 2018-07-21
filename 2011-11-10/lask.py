@@ -2,17 +2,21 @@
 from flask import Flask, url_for, request, json, Response
 app = Flask(__name__)
 
+
 @app.route('/')
 def api_root():
     return 'Welcome'
+
 
 @app.route('/articles')
 def api_articles():
     return 'List of ' + url_for('api_articles')
 
+
 @app.route('/articles/<articleid>')
 def api_article(articleid):
     return 'You are reading ' + articleid
+
 
 @app.route('/xml/articles/<articleid>', methods=['GET'], strict_slashes=False)
 def api_xml_article(articleid):
@@ -29,6 +33,6 @@ def api_xml_article(articleid):
         resp.headers['Link'] = 'http://luisrei.com'
         return resp
 
+
 if __name__ == '__main__':
     app.run(debug=True)
-
